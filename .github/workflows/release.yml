@@ -1,17 +1,22 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 name: Release desktop installers
-run-name: Release • ${{ github.ref_name }}
+run-name: Release • ${{ inputs.tag || github.ref_name }}
 
 on:
   push:
     tags: ['v*']
   workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to build or finish, such as v0.5.0
+        required: true
+        type: string
 
 permissions:
   contents: read
 
 concurrency:
-  group: release-${{ github.ref }}
+  group: release-${{ inputs.tag || github.ref_name }}
   cancel-in-progress: false
 
 jobs:
@@ -19,20 +24,27 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       number: ${{ steps.check.outputs.number }}
+      tag: ${{ steps.check.outputs.tag }}
+      source: ${{ steps.check.outputs.source }}
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: refs/tags/${{ inputs.tag || github.ref_name }}
           persist-credentials: false
       - name: Verify version and tag
         id: check
         run: |
           version=$(tr -d '\r\n' < VERSION)
           [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
-          test "$GITHUB_REF" = "refs/tags/v$version"
+          test "$TAG" = "v$version"
           test "$(node -p "require('./package.json').version")" = "$version"
           test "$(node -p "require('./package-lock.json').packages[''].version")" = "$version"
           grep -Fx "export const VERSION = '$version'" src/version.ts
           echo "number=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "source=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
   browser:
     needs: version
@@ -40,6 +52,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ needs.version.outputs.source }}
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
@@ -89,6 +102,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ needs.version.outputs.source }}
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
@@ -144,6 +158,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           VERSION: ${{ needs.version.outputs.number }}
+          TAG: ${{ needs.version.outputs.tag }}
+          SOURCE: ${{ needs.version.outputs.source }}
         run: |
           files=(
             "Pageglade-Setup-$VERSION.exe"
@@ -155,12 +171,24 @@ jobs:
           )
           for file in "${files[@]}"; do test -s "$file"; done
 
-          if gh release view "$GITHUB_REF_NAME" --json isDraft --jq '.isDraft == false' | grep -qx true; then
-            echo "The release is already published."
-            exit 0
-          fi
-
+          existing=$(gh release view "$TAG" --json isDraft,name,body,assets 2>/dev/null || echo null)
+          names=$(jq -r '.assets[]?.name' <<< "$existing")
+          missing=()
+          for file in "${files[@]}"; do
+            if grep -Fxq "$file" <<< "$names"; then
+              gh release download "$TAG" --pattern "$file" --output "$RUNNER_TEMP/$file"
+              mv "$RUNNER_TEMP/$file" "$file"
+            else
+              missing+=("$file")
+            fi
+          done
           sha256sum "${files[@]}" > SHA256SUMS.txt
+          if grep -Fxq SHA256SUMS.txt <<< "$names"; then
+            gh release download "$TAG" --pattern SHA256SUMS.txt --output "$RUNNER_TEMP/SHA256SUMS.txt"
+            cmp SHA256SUMS.txt "$RUNNER_TEMP/SHA256SUMS.txt"
+          else
+            missing+=(SHA256SUMS.txt)
+          fi
           cat > "$RUNNER_TEMP/release-notes.md" <<EOF
           Pageglade is a calm, private EPUB reader. Open a book, scroll continuously or turn pages, and return to your saved place. Zoom using the reading controls, keyboard, wheel, or a supported pinch gesture.
 
@@ -172,24 +200,31 @@ jobs:
 
           These preview builds are distributed without publisher certificates. Windows and macOS may show security warnings. GitHub Actions built the packages and tested EPUB opening and exit in the packaged application on each runner.
 
-          [Exact source and build instructions](https://github.com/$GH_REPO/tree/$GITHUB_SHA) · [Open-source notices](https://github.com/$GH_REPO/blob/$GITHUB_SHA/NOTICE.md) · [Contact Pageglade](https://tally.so/r/dbNeEK)
+          [Exact source and build instructions](https://github.com/$GH_REPO/tree/$SOURCE) · [Open-source notices](https://github.com/$GH_REPO/blob/$SOURCE/NOTICE.md) · [Contact Pageglade](https://tally.so/r/dbNeEK)
           EOF
 
-          if ! gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
-            flags=()
-            if [[ "$VERSION" == 0.* ]]; then flags+=(--prerelease); fi
-            gh release create "$GITHUB_REF_NAME" --draft --verify-tag "${flags[@]}" \
-              --title "Pageglade $GITHUB_REF_NAME" --notes-file "$RUNNER_TEMP/release-notes.md"
+          flags=()
+          if [[ "$VERSION" == 0.* ]]; then flags+=(--prerelease); fi
+          if [[ "$existing" == null ]]; then
+            gh release create "$TAG" --draft --verify-tag "${flags[@]}" \
+              --title "Pageglade $TAG" --notes-file "$RUNNER_TEMP/release-notes.md"
           fi
-          gh release upload "$GITHUB_REF_NAME" "${files[@]}" SHA256SUMS.txt --clobber
-          gh release edit "$GITHUB_REF_NAME" --draft=false
+          if ((${#missing[@]})); then
+            gh release upload "$TAG" "${missing[@]}"
+          fi
+          if [[ "$existing" == null ]] || jq -e '.isDraft' <<< "$existing" > /dev/null; then
+            gh release edit "$TAG" --draft=false
+          elif jq -e '.name == "" and .body == ""' <<< "$existing" > /dev/null; then
+            gh release edit "$TAG" "${flags[@]}" \
+              --title "Pageglade $TAG" --notes-file "$RUNNER_TEMP/release-notes.md"
+          fi
 
   web:
-    needs: publish
+    needs: [version, publish]
     permissions:
       contents: read
       pages: write
       id-token: write
     uses: ./.github/workflows/pages.yml
     with:
-      tag: ${{ github.ref_name }}
+      tag: ${{ needs.version.outputs.tag }}
