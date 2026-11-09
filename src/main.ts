@@ -206,7 +206,7 @@ function setPreferences(next: Preferences, point?: ZoomPoint) {
 
 function currentZoom() {
   const view = active?.view
-  if (!view || busy || document.querySelector('dialog[open]')) return undefined
+  if (!view?.renderer || document.querySelector('dialog[open]')) return undefined
   if (!view.isFixedLayout) return preferences.size
   if (typeof preferences.fixedZoom === 'number') return preferences.fixedZoom
   const frame = view.renderer.getContents?.()[0]?.doc.defaultView?.frameElement
@@ -225,7 +225,7 @@ function updateZoomControl(view: View) {
 }
 
 function setZoom(value: FixedZoom, point?: ZoomPoint) {
-  if (!active || busy) return
+  if (!active?.view.renderer) return
   if (active.view.isFixedLayout) {
     const fixedZoom = typeof value === 'number' ? Math.max(50, Math.min(300, Math.round(value))) : value
     if (preferences.fixedZoom !== fixedZoom) setPreferences({ ...preferences, fixedZoom }, point)

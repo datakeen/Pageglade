@@ -48,4 +48,6 @@ The download chooser accepts approved GitHub release links at build time. Set VI
 
 For a change, check the ordinary reader flow, keyboard and touch alternatives, offline use, the fixtures it affects, and the relevant Help and CHANGELOG entries. Keep VERSION, the app version constant, and package metadata aligned. Add the SPDX header to each new source file and credit any bundled library or font in NOTICE.
 
+Before distributing a build, include NOTICE.md and the bundled licenses, verify the runtime and installer notices for that platform, and give readers an exact link to the corresponding source alongside the download. Keep the build instructions and lockfile with the source.
+
 When reporting a bug, include the version, browser or operating system, and the steps to reproduce it. Use a small shareable book sample.

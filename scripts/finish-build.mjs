@@ -10,15 +10,45 @@ for (const [name, file] of Object.entries({
   Pageglade: 'LICENSE',
   'foliate-js': 'node_modules/foliate-js/LICENSE',
   'zip.js': 'node_modules/@zip.js/zip.js/LICENSE',
+  'zlib-streams': 'licenses/zlib-streams.txt',
   DOMPurify: 'node_modules/dompurify/LICENSE',
+  'Babel-helpers': 'licenses/Babel-helpers.txt',
   'css-tree': 'node_modules/css-tree/LICENSE',
   'mdn-data': 'node_modules/mdn-data/LICENSE',
   'source-map-js': 'node_modules/source-map-js/LICENSE',
   'Noto-Nastaliq-Urdu': 'node_modules/@fontsource/noto-nastaliq-urdu/LICENSE',
+  Vite: 'node_modules/vite/LICENSE.md',
+  Rolldown: 'node_modules/rolldown/LICENSE',
 })) {
   await copyFile(new URL(file, root), new URL(name + '.txt', licenses))
 }
+// Preserve additional copyrights and license conditions from source comments
+// that the bundle's minifier can remove.
+const sourceNotices = {
+  'zip.js-source-notices': [
+    'node_modules/@zip.js/zip.js/lib/core/constants.js',
+    'node_modules/@zip.js/zip.js/lib/core/configuration.js',
+    'node_modules/@zip.js/zip.js/lib/core/util/array.js',
+  ],
+  'source-map-js-source-notices': [
+    'node_modules/source-map-js/lib/base64-vlq.js',
+    'node_modules/source-map-js/lib/mapping-list.js',
+  ],
+  'DOMPurify-source-notices': ['node_modules/dompurify/dist/purify.es.mjs'],
+}
+for (const [name, paths] of Object.entries(sourceNotices)) {
+  const notices = new Set()
+  for (const path of paths) {
+    const source = await readFile(new URL(path, root), 'utf8')
+    const comments = (source.slice(0, 12_000).match(/\/\*[\s\S]*?\*\//g) ?? [])
+      .filter(comment => /copyright|@license/i.test(comment))
+    if (!comments.length) throw new Error('Review the third-party notice in ' + path)
+    for (const comment of comments) notices.add(comment)
+  }
+  await writeFile(new URL(name + '.txt', licenses), [...notices].join('\n\n') + '\n')
+}
 await copyFile(new URL('NOTICE.md', root), new URL('NOTICE.md', target))
+await copyFile(new URL('LICENSE', root), new URL('LICENSE', target))
 
 const files = (await readdir(target, { recursive: true, withFileTypes: true }))
   .filter(entry => entry.isFile())

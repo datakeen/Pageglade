@@ -26,6 +26,10 @@ The third freedom is still growing. Each new version is one more step toward it,
 
 Click Help inside the reader, or open [Quick help](docs/Help.md), the [User Manual](docs/User%20Manual.md), the [first tutorial](docs/tutorials/01%20Open%20and%20read.md), or the [Reference Manual](docs/Reference%20Manual.md). For running or testing the source, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## Thanks to the projects Pageglade builds on
+
+[foliate-js](https://github.com/johnfactotum/foliate-js) powers EPUB reading, [zip.js](https://github.com/gildas-lormeau/zip.js) unpacks books, [DOMPurify](https://github.com/cure53/DOMPurify) and [CSSTree](https://github.com/csstree/csstree) help process book content, and [Noto Nastaliq Urdu](https://github.com/notofonts/nastaliq) provides the Urdu typeface. [Electron](https://www.electronjs.org/) runs the desktop app, and [Vite](https://vite.dev/) builds the web app. See [NOTICE.md](NOTICE.md) for full credits, licenses, and the work these projects build on.
+
 ## License
 
 GNU Affero General Public License, version 3 or later. See [LICENSE](LICENSE) and [NOTICE.md](NOTICE.md).

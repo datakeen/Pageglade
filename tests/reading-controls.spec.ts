@@ -145,3 +145,27 @@ test('shows a download chooser offline, on the welcome screen and from Help', as
   await page.getByRole('dialog').getByRole('button', { name: 'Download desktop app' }).click()
   await expect(dialog).toBeVisible()
 })
+
+test('shows About credits and serves bundled licenses offline', async ({ page, context }) => {
+  await page.goto('/')
+  await expect(page.locator('#offline')).toHaveText('Ready to read offline.')
+  await page.getByRole('button', { name: 'Help', exact: true }).click()
+  await page.getByRole('button', { name: 'About', exact: true }).click()
+  await expect(page.locator('#help-page')).toContainText('foliate-js')
+  await expect(page.locator('#help-page')).toContainText('Noto Nastaliq Urdu')
+  await context.setOffline(true)
+  const notices = await page.evaluate(async () => {
+    const paths = ['NOTICE.md', 'LICENSE', 'licenses/zlib-streams.txt', 'licenses/Babel-helpers.txt',
+      'licenses/source-map-js-source-notices.txt', 'licenses/Noto-Nastaliq-Urdu.txt']
+    return Promise.all(paths.map(async path => {
+      const response = await fetch('./' + path)
+      return response.ok ? await response.text() : ''
+    }))
+  })
+  expect(notices[0]).toContain('CSSTree')
+  expect(notices[1]).toContain('GNU AFFERO GENERAL PUBLIC LICENSE')
+  expect(notices[2]).toContain('Mark Adler')
+  expect(notices[3]).toContain('Facebook, Inc.')
+  expect(notices[4]).toContain('The Closure Compiler Authors')
+  expect(notices[5]).toContain('The Noto Project Authors')
+})
