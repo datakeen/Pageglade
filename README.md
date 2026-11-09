@@ -1,6 +1,7 @@
 <p align="center"><img src="public/icon.svg" width="80" alt="Pageglade logo"></p>
 <h1 align="center">Pageglade</h1>
 <p align="center">A calm, free, private place to read.</p>
+<p align="center"><a href="https://datakeen.github.io/Pageglade/">Try it in your browser</a></p>
 
 Pageglade is an EPUB reader for desktop and web. Books stay on your device. There is no account, upload, or telemetry.
 
