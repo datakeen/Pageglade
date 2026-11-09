@@ -132,10 +132,20 @@ test('shows a download chooser offline, on the welcome screen and from Help', as
   await page.getByRole('button', { name: 'Download desktop app' }).click()
   const dialog = page.getByRole('dialog', { name: 'Download desktop app' })
   await expect(dialog.getByRole('listitem')).toHaveCount(6)
-  if (process.env.PAGEGLADE_TEST_DOWNLOAD) {
-    await expect(dialog.getByRole('link', { name: 'Windows installer' }))
-      .toHaveAttribute('href', process.env.PAGEGLADE_TEST_DOWNLOAD)
-    await expect(dialog.getByRole('link')).toHaveCount(1)
+  const downloads = [
+    ['Windows installer', process.env.VITE_DOWNLOAD_WINDOWS ?? process.env.PAGEGLADE_TEST_DOWNLOAD],
+    ['Windows portable', process.env.VITE_DOWNLOAD_WINDOWS_PORTABLE],
+    ['macOS for Apple chip', process.env.VITE_DOWNLOAD_MAC_ARM64],
+    ['macOS for Intel', process.env.VITE_DOWNLOAD_MAC_INTEL],
+    ['Linux AppImage', process.env.VITE_DOWNLOAD_LINUX_APPIMAGE],
+    ['Linux Debian package', process.env.VITE_DOWNLOAD_LINUX_DEB],
+    ['Open GitHub Releases', process.env.VITE_DESKTOP_RELEASE_URL],
+  ] as const
+  const configured = downloads.filter(([, url]) => !!url)
+  if (configured.length) {
+    for (const [name, url] of configured)
+      await expect(dialog.getByRole('link', { name, exact: true })).toHaveAttribute('href', url!)
+    await expect(dialog.getByRole('link')).toHaveCount(configured.length)
   } else {
     await expect(dialog).toContainText('Desktop installers are coming soon.')
     await expect(dialog.getByRole('link')).toHaveCount(0)

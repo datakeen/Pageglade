@@ -1,6 +1,8 @@
 # Changelog
 
-## 0.5.0 development preview
+## 0.5.0 preview
+
+- GitHub Actions builds the Windows, macOS, and Linux installers, attaches them to the release with SHA-256 checksums, and deploys the offline web reader.
 
 - Continuous reading crosses section boundaries and displays page or section markers.
 - Added zoom buttons, presets, keyboard shortcuts, wheel and pinch controls, and fixed-page fit modes.

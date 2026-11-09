@@ -8,6 +8,9 @@ const licenses = new URL('licenses/', target)
 await mkdir(licenses, { recursive: true })
 for (const [name, file] of Object.entries({
   Pageglade: 'LICENSE',
+  NSIS: 'licenses/NSIS.txt',
+  'AppImage-runtime': 'licenses/AppImage-runtime.txt',
+  libfuse: 'licenses/libfuse.txt',
   'foliate-js': 'node_modules/foliate-js/LICENSE',
   'zip.js': 'node_modules/@zip.js/zip.js/LICENSE',
   'zlib-streams': 'licenses/zlib-streams.txt',

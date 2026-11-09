@@ -2,6 +2,16 @@
 
 Pageglade is free software under AGPL-3.0-or-later. Contributions use the same license.
 
+## Where to start
+
+Thank you for helping. You can test a book, improve the help pages, translate the interface, or write code.
+
+- To share a problem or idea, open Pageglade on GitHub. Click Issues, then New issue. Tell us what you tried, what happened, and whether you used the browser or desktop app. Include a small book you can share if it helps reproduce the issue.
+- To suggest a correction to the help pages, open the file on GitHub and click the pencil icon. If asked, click Fork this repository. Make your change and click Commit changes. Choose to create a new branch if GitHub offers that choice, then click Propose changes and Create pull request.
+- If you have a question or would like to get in touch directly, use the [Contact Pageglade form](https://tally.so/r/dbNeEK).
+
+## Run the reader
+
 Install Node.js 24 or newer and open PowerShell in the project folder.
 
 ```powershell

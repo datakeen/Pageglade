@@ -4,6 +4,7 @@
   "version": "0.5.0",
   "private": true,
   "description": "A calm, private EPUB reader.",
+  "homepage": "https://github.com/datakeen/Pageglade",
   "license": "AGPL-3.0-or-later",
   "author": "Ahmed Bilal and contributors",
   "type": "module",
@@ -35,6 +36,7 @@
   "build": {
     "appId": "org.pageglade.reader",
     "asar": true,
+    "toolsets": { "appimage": "1.0.3" },
     "directories": {
       "output": "release"
     },
@@ -83,7 +85,7 @@
         "deb"
       ],
       "category": "Office",
-      "maintainer": "Ahmed Bilal",
+      "maintainer": "Pageglade <11465127+datakeen@users.noreply.github.com>",
       "artifactName": "Pageglade-${version}-${arch}.${ext}"
     }
   }

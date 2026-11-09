@@ -4,13 +4,15 @@ import { writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { fixture } from './books'
 
-test('opens an EPUB passed to the Windows desktop app and exits', async ({}, testInfo) => {
+test('opens an EPUB passed to the desktop app and exits', async ({}, testInfo) => {
   test.skip(!process.env.PAGEGLADE_DESKTOP_TEST, 'Enable after installing the pinned Electron binary.')
   const bookPath = testInfo.outputPath('River.epub')
   await writeFile(bookPath, await fixture({ hostile: true }))
-  const app = await _electron.launch({
-    args: [resolve('.'), '--user-data-dir=' + testInfo.outputPath('profile'), bookPath],
-  })
+  const target = process.env.PAGEGLADE_DESKTOP_TEST
+  const executablePath = target && target !== '1' ? resolve(target) : undefined
+  const args = ['--user-data-dir=' + testInfo.outputPath('profile'), bookPath]
+  if (!executablePath) args.unshift(resolve('.'))
+  const app = await _electron.launch({ executablePath, args })
   try {
     const window = await app.firstWindow()
     await expect(window.locator('#book-title')).toHaveText('River Notes')
