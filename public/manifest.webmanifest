@@ -1,0 +1,13 @@
+{
+  "name": "Pageglade",
+  "short_name": "Pageglade",
+  "description": "A calm, private EPUB reader.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "theme_color": "#f4f3ed",
+  "background_color": "#f4f3ed",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

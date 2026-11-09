@@ -1,0 +1,90 @@
+{
+  "name": "pageglade",
+  "productName": "Pageglade",
+  "version": "0.5.0",
+  "private": true,
+  "description": "A calm, private EPUB reader.",
+  "license": "AGPL-3.0-or-later",
+  "author": "Ahmed Bilal and contributors",
+  "type": "module",
+  "main": "desktop/main.cjs",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc --noEmit && vite build && node scripts/finish-build.mjs",
+    "preview": "vite preview --host 127.0.0.1",
+    "desktop": "npm run build && electron .",
+    "test": "playwright test",
+    "package:desktop": "npm run build && electron-builder --publish never"
+  },
+  "dependencies": {
+    "@fontsource/noto-nastaliq-urdu": "5.3.0",
+    "@zip.js/zip.js": "2.24.0",
+    "css-tree": "3.2.1",
+    "dompurify": "3.4.17",
+    "foliate-js": "https://codeload.github.com/johnfactotum/foliate-js/tar.gz/78914aef4466eb960965702401634c2cb348e9b1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.0",
+    "@types/css-tree": "3.2.0",
+    "@types/node": "26.6.6",
+    "electron": "45.2.3",
+    "electron-builder": "26.18.0",
+    "typescript": "7.0.2",
+    "vite": "8.3.7"
+  },
+  "build": {
+    "appId": "org.pageglade.reader",
+    "asar": true,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "desktop/**",
+      "dist/**",
+      "!node_modules/**"
+    ],
+    "fileAssociations": [
+      {
+        "ext": "epub",
+        "name": "EPUB book",
+        "role": "Viewer"
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "Pageglade-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "Pageglade-Portable-${version}.${ext}"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ],
+      "category": "public.app-category.books",
+      "artifactName": "Pageglade-${version}-${arch}.${ext}"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Office",
+      "maintainer": "Ahmed Bilal",
+      "artifactName": "Pageglade-${version}-${arch}.${ext}"
+    }
+  }
+}

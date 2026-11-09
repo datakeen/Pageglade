@@ -1,0 +1,6 @@
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="38" fill="#263d32"/>
+  <path d="M96 57c-17-13-38-14-57-8v79c23-5 42-2 57 10 15-12 34-15 57-10V49c-19-6-40-5-57 8Z" fill="#f0ebd9" stroke="#f0ebd9" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M96 58v78m-39-61c8 0 15 2 22 5m-22 14c8 0 15 2 22 5m56-24c-8 0-15 2-22 5m22 14c-8 0-15 2-22 5" fill="none" stroke="#263d32" stroke-width="4" stroke-linecap="round"/>
+</svg>

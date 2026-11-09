@@ -1,0 +1,84 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+:root {
+  color-scheme: light;
+  --paper: #f4f3ed;
+  --surface: #fcfbf6;
+  --text: #222b25;
+  --muted: #505c52;
+  --line: #cfd3c8;
+  --accent: #264a39;
+  --on-accent: #fff;
+  font: 100%/1.5 system-ui, sans-serif;
+  color: var(--text);
+  background: var(--paper);
+}
+:root[data-theme="sepia"] {
+  --paper: #eee3cf;
+  --surface: #f7eedc;
+  --text: #3f3124;
+  --muted: #625145;
+  --line: #cbbda4;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #1b211e;
+  --surface: #252e29;
+  --text: #eeeae0;
+  --muted: #bbc4b9;
+  --line: #4e5b52;
+  --accent: #b9dbc3;
+  --on-accent: #14241c;
+}
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100dvh; display: flex; flex-direction: column; }
+[hidden] { display: none !important; }
+.bar { display: flex; align-items: center; gap: .55rem; padding: .55rem clamp(.65rem, 2vw, 1.5rem); border-block-end: 1px solid var(--line); }
+.brand { color: inherit; font-family: Georgia, serif; font-size: 1.35rem; text-decoration: none; }
+.book-title { flex: 1; color: var(--muted); min-width: 2rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+nav, .field-row { display: flex; align-items: center; flex-wrap: wrap; gap: .45rem; }
+button, select, input:not([type="range"]) {
+  min-height: 2.65rem; padding: .4rem .75rem; font: inherit; color: inherit;
+  background: var(--surface); border: 1px solid var(--line); border-radius: .45rem;
+}
+button { cursor: pointer; }
+button:hover { border-color: var(--accent); }
+button:disabled { opacity: .55; cursor: default; }
+button.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+main { flex: 1; display: flex; min-height: 0; }
+#welcome { width: 100%; display: grid; place-items: center; padding: 3rem 1rem; }
+.welcome-inner { text-align: center; max-inline-size: 35rem; }
+h1 { font: 400 clamp(2.5rem, 7vw, 4.4rem)/1.08 Georgia, serif; letter-spacing: -.035em; margin: 1rem 0; }
+.lede { color: var(--muted); margin: 1rem 0 1.75rem; }
+.offline, .hint { color: var(--muted); font-size: .9rem; }
+#reader { flex: 1; min-width: 0; min-height: 18rem; background: var(--surface); position: relative; }
+foliate-view { position: absolute; inset: 0; display: block; }
+.reading-controls { display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; }
+#zoom-value { min-inline-size: 4.5rem; }
+#zoom-presets { margin-block-end: .8rem; }
+#download-dialog form { margin-block-start: .75rem; }
+.footer { justify-content: center; flex-wrap: wrap; border: 0; border-block-start: 1px solid var(--line); }
+.footer:has(#location[hidden]) { display: none; }
+#location { min-width: 8rem; text-align: center; font-variant-numeric: tabular-nums; color: var(--muted); }
+#status { margin: 0; padding: 0 .8rem; background: var(--surface); color: var(--text); }
+#status:not(:empty) { padding-block: .45rem; border-block-start: 1px solid var(--line); }
+dialog { max-inline-size: min(37rem, calc(100% - 1rem)); max-block-size: calc(100% - 1rem); padding: 1.3rem; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: .7rem; }
+dialog::backdrop { background: #10181280; }
+dialog h2 { margin-block: 0 .9rem; font: 400 1.65rem Georgia, serif; }
+dialog ol, dialog ul { padding-inline-start: 1.4rem; }
+dialog li { margin-block: .4rem; }
+dialog li button { text-align: start; }
+.settings { display: grid; grid-template-columns: 1fr minmax(9rem, auto); align-items: center; gap: .6rem; }
+input[type="search"] { max-inline-size: 100%; }
+#help-page { max-inline-size: 55ch; }
+#detail-content { margin-block-end: .75rem; white-space: pre-wrap; }
+#detail-content img { max-inline-size: 100%; max-block-size: 72vh; object-fit: contain; }
+.focus .bar:first-child .brand, .focus #book-title,
+.focus .bar:first-child nav button:not(#exit), .focus #status { display: none; }
+.focus .bar:first-child { justify-content: end; border-color: transparent; }
+.dragging #welcome, .dragging #reader { outline: 2px dashed var(--accent); outline-offset: -6px; }
+@media (max-width: 720px) {
+  .bar { flex-wrap: wrap; }
+  .bar nav { inline-size: 100%; }
+  #location { min-width: 6rem; }
+}

@@ -1,0 +1,141 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f3ed">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; frame-src blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'; connect-src 'self' ws://127.0.0.1:*">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <title>Pageglade</title>
+  <script type="module" src="/src/main.ts"></script>
+</head>
+<body>
+  <header class="bar">
+    <a class="brand" href="./" aria-label="Pageglade home">Pageglade</a>
+    <span id="book-title" class="book-title"></span>
+    <nav aria-label="Reading tools">
+      <button type="button" id="open">Open book</button>
+      <button type="button" id="contents" data-reading hidden>Contents</button>
+      <button type="button" id="find" data-reading hidden>Find</button>
+      <button type="button" id="preferences">Preferences</button>
+      <button type="button" id="commands">Commands</button>
+      <button type="button" id="help">Help</button>
+      <button type="button" id="exit">Exit</button>
+    </nav>
+  </header>
+  <main id="main">
+    <section id="welcome" aria-labelledby="welcome-title">
+      <div class="welcome-inner">
+        <img src="./icon.svg" width="72" height="72" alt="">
+        <h1 id="welcome-title">A quiet place to read.</h1>
+        <p class="lede">Open an EPUB or drop it here. Your book stays on this device.</p>
+        <button type="button" id="welcome-open" class="primary">Choose a book</button>
+        <button type="button" id="resume" hidden>Continue reading</button>
+        <button type="button" data-download hidden>Download desktop app</button>
+        <p class="offline" id="offline"></p>
+      </div>
+    </section>
+    <section id="reader" aria-label="Book pages" hidden tabindex="0"></section>
+  </main>
+  <footer class="bar footer">
+    <button type="button" id="previous" data-reading hidden>Previous</button>
+    <span id="location" data-reading hidden></span>
+    <button type="button" id="next" data-reading hidden>Next</button>
+    <div class="reading-controls" data-reading hidden>
+      <button type="button" id="zoom-out" aria-label="Zoom out">−</button>
+      <button type="button" id="zoom-value" aria-label="Zoom options"></button>
+      <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
+      <select id="reader-layout" aria-label="Reading layout">
+        <option value="scroll">Continuous</option><option value="single">One page</option><option value="spread">Two pages</option>
+      </select>
+    </div>
+    <button type="button" id="focus" data-reading hidden aria-pressed="false">Focus</button>
+  </footer>
+  <p id="status" role="status" aria-live="polite"></p>
+  <input type="file" id="book-file" accept=".epub,application/epub+zip" hidden>
+  <input type="file" id="settings-file" accept=".json,application/json" hidden>
+  <dialog id="contents-dialog" aria-labelledby="contents-title">
+    <h2 id="contents-title">Contents</h2>
+    <ol id="chapter-list"></ol>
+    <form method="dialog"><button>Close</button></form>
+  </dialog>
+  <dialog id="find-dialog" aria-labelledby="find-title">
+    <h2 id="find-title">Find in this book</h2>
+    <form id="find-form">
+      <label for="query">Word or phrase</label>
+      <div class="field-row"><input id="query" type="search" required maxlength="160" autofocus><button>Find</button></div>
+    </form>
+    <p id="find-status" role="status"></p>
+    <ol id="find-results"></ol>
+    <form method="dialog"><button>Close</button></form>
+  </dialog>
+  <dialog id="preferences-dialog" aria-labelledby="preferences-title">
+    <h2 id="preferences-title">Preferences</h2>
+    <div class="settings">
+      <label for="theme">Appearance</label>
+      <select id="theme"><option value="system">Follow system</option><option value="light">Light</option><option value="sepia">Sepia</option><option value="dark">Dark</option></select>
+      <label for="layout">Pages</label>
+      <select id="layout"><option value="single">One page</option><option value="spread">Two pages when there is room</option><option value="scroll">Continuous</option></select>
+      <label for="font">Typeface</label>
+      <select id="font"><option value="publisher">Publisher defaults</option><option value="serif">Serif</option><option value="sans">Sans serif</option><option value="nastaliq">Nastaliq</option></select>
+      <label for="size">Text size <output id="size-label" for="size"></output></label>
+      <input id="size" type="range" min="75" max="200" step="5" value="100">
+      <label for="spacing">Line spacing</label>
+      <select id="spacing"><option value="publisher">Publisher defaults</option><option value="normal">Comfortable</option><option value="wide">Wide</option></select>
+      <label for="margin">Page margins</label>
+      <select id="margin"><option value="normal">Normal</option><option value="narrow">Narrow</option><option value="wide">Wide</option></select>
+      <label for="markers">Start and end markers</label>
+      <input id="markers" type="checkbox" checked>
+      <label for="alignment">Text alignment</label>
+      <select id="alignment"><option value="publisher">Publisher defaults</option><option value="start">Start edge</option><option value="justify">Justified</option></select>
+    </div>
+    <p class="hint">Fixed pages keep their original layout.</p>
+    <div class="field-row">
+      <button type="button" id="reset">Reset</button>
+      <button type="button" id="export">Export</button>
+      <button type="button" id="import">Import</button>
+      <form method="dialog"><button>Done</button></form>
+    </div>
+  </dialog>
+  <dialog id="commands-dialog" aria-labelledby="commands-title">
+    <h2 id="commands-title">What would you like to do?</h2>
+    <label for="command-query">Find a command</label>
+    <input id="command-query" type="search" autofocus placeholder="Try “make text bigger”">
+    <ul id="command-results"></ul>
+    <form method="dialog"><button>Close</button></form>
+  </dialog>
+  <dialog id="help-dialog" aria-labelledby="help-title">
+    <h2 id="help-title">Pageglade Help</h2>
+    <nav aria-label="Help pages">
+      <button type="button" data-doc="help">Quick help</button>
+      <button type="button" data-doc="manual">User manual</button>
+      <button type="button" data-doc="tutorial">Tutorial</button>
+      <button type="button" data-doc="reference">Reference</button>
+      <button type="button" data-doc="about">About</button>
+    </nav>
+    <article id="help-page"></article>
+    <button type="button" data-download hidden>Download desktop app</button>
+    <form method="dialog"><button>Close</button></form>
+  </dialog>
+  <dialog id="zoom-dialog" aria-labelledby="zoom-title">
+    <h2 id="zoom-title">Zoom</h2>
+    <p id="zoom-help" class="hint"></p>
+    <div id="zoom-presets" class="field-row"></div>
+    <form method="dialog"><button>Close</button></form>
+  </dialog>
+  <dialog id="download-dialog" aria-labelledby="download-title">
+    <h2 id="download-title">Download desktop app</h2>
+    <p></p>
+    <ul></ul>
+    <a id="release-link" hidden>Open GitHub Releases</a>
+    <form method="dialog"><button>Close</button></form>
+  </dialog>
+  <dialog id="detail-dialog" aria-labelledby="detail-title">
+    <h2 id="detail-title"></h2>
+    <div id="detail-content"></div>
+    <form method="dialog"><button>Close</button></form>
+  </dialog>
+</body>
+</html>
